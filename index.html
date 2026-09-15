@@ -18,31 +18,36 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #1e1e1e; color: #fff; }
         .container { display: flex; flex-direction: column; gap: 20px; max-width: 1400px; margin: 0 auto; }
         
+        /* Header BMKG */
         .bmkg-header { display: flex; align-items: center; gap: 20px; background: #2b2b2b; padding: 15px 25px; border-radius: 8px; border: 1px solid #444; }
         .bmkg-logo { width: 55px; height: auto; }
         .bmkg-text-container { display: flex; flex-direction: column; }
         .bmkg-title-top { font-size: 14px; color: #ccc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
         .bmkg-title-bottom { font-size: 22px; font-weight: bold; color: #5bc0de; text-transform: uppercase; letter-spacing: 1px; }
 
+        /* Peta */
         .map-section { width: 100%; position: relative; }
         #map { height: 450px; width: 100%; border-radius: 8px; border: 1px solid #444; z-index: 1; }
         
+        /* Grafik Container */
         .chart-section { width: 100%; background: #2b2b2b; padding: 20px; border-radius: 8px; border: 1px solid #444; box-sizing: border-box; }
         .header-info { margin-bottom: 15px; }
         .header-info strong { color: #5bc0de; font-size: 1.2em; }
         
+        /* Tombol Tab */
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { background: #333; color: #ccc; border: 1px solid #555; padding: 10px 25px; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .tab-btn.active { background: #5bc0de; color: #000; border-color: #5bc0de; }
         
         .chart-container { height: 500px; width: 100%; display: none; }
         .chart-container.active { display: block; }
-        #loading { display: none; color: #5bc0de; font-weight: bold; }
         
+        /* Tooltip Highcharts */
         .custom-tooltip { font-size: 12px; line-height: 1.6; color: #333; padding: 5px; }
         .custom-tooltip .time { font-weight: bold; border-bottom: 1px solid #ddd; margin-bottom: 5px; padding-bottom: 3px; display: block; }
         .custom-tooltip .desc { font-weight: bold; color: #0056b3; display: flex; align-items: center; gap: 5px; }
 
+        /* Popup Peta Leaflet */
         .leaflet-popup-content-wrapper { background-color: #222; color: #eee; border-radius: 8px; padding: 0; }
         .leaflet-popup-tip { background-color: #222; }
         .leaflet-popup-content { margin: 15px; min-width: 320px; }
@@ -51,7 +56,7 @@
         
         .info-row { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 4px; }
         
-        /* Modifikasi Kotak Detail Cuaca (Kuning) */
+        /* Kotak Detail Cuaca (Kuning) */
         .weather-summary-box { background-color: #ffe699; color: #333; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 12px; display: flex; align-items: center; gap: 12px; }
         .weather-summary-box .weather-icon-wrapper { text-align: center; min-width: 75px; }
         .weather-summary-box .weather-icon-wrapper img { width: 45px; height: 45px; background: #444; border-radius: 50%; padding: 2px; }
@@ -60,6 +65,7 @@
         .weather-summary-box .fl-info { margin-bottom: 5px; font-weight: 600; display: flex; align-items: center; }
         .weather-summary-box .fl-info:last-child { margin-bottom: 0; }
 
+        /* Blok Warna Risiko */
         .bg-green { background-color: #5cb85c; }
         .bg-yellow { background-color: #f0ad4e; }
         .bg-orange { background-color: #fd7e14; }
@@ -78,7 +84,7 @@
 
 <div class="container">
     <div class="bmkg-header">
-        <img src="https://www.bmkg.go.id/asset/img/logo/logo-bmkg.png" alt="Logo BMKG" class="bmkg-logo">
+        <img src="logo-bmkg.png" onerror="this.src='https://www.bmkg.go.id/asset/img/logo/logo-bmkg.png'" alt="Logo BMKG" class="bmkg-logo">
         <div class="bmkg-text-container">
             <div class="bmkg-title-top">Stasiun Meteorologi Kelas I</div>
             <div class="bmkg-title-bottom">I Gusti Ngurah Rai</div>
@@ -92,7 +98,6 @@
     <div class="chart-section" id="chartSection">
         <div class="header-info">
             Lokasi: <strong id="locationName">Pilih titik di peta untuk melihat detail</strong>
-            <span id="loading"> (Memuat data...)</span>
         </div>
         
         <div class="tabs">
@@ -106,22 +111,24 @@
 </div>
 
 <script>
+    // 1. DATA KOORDINAT WAYPOINT TERBARU
     const waypoints = [
-        { name: "BEPTA", lat: -8.1517, lon: 114.4614, sector: "Sektor Barat Laut", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
-        { name: "ESKOG", lat: -8.4194, lon: 114.6283, sector: "Sektor Barat", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
-        { name: "GODEV", lat: -8.6850, lon: 114.5567, sector: "Sektor Barat (Pendekatan Utama)", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
-        { name: "GOSAN", lat: -8.9272, lon: 114.5883, sector: "Sektor Barat Daya (Aktif RWY 27)", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
-        { name: "IDGON", lat: -9.2133, lon: 114.8617, sector: "Sektor Barat Daya Luar", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
-        { name: "VIDIL", lat: -8.0383, lon: 115.5600, sector: "Sektor Timur Laut", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
-        { name: "MAGUR", lat: -8.3883, lon: 115.6200, sector: "Sektor Timur", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
-        { name: "BENOA", lat: -8.7083, lon: 115.4700, sector: "Sektor Timur (Khusus RWY 27)", fls: [{level: 850, label: 'FL050'}] },
-        { name: "KHUTA", lat: -8.7167, lon: 115.4667, sector: "Sektor Timur (Khusus RWY 09)", fls: [{level: 850, label: 'FL050'}] },
-        { name: "SARAV", lat: -8.8900, lon: 115.4967, sector: "Sektor Tenggara (Khusus RWY 27)", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
-        { name: "MAVDU", lat: -8.8667, lon: 115.4833, sector: "Sektor Tenggara (Khusus RWY 09)", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
-        { name: "LELES", lat: -9.0483, lon: 115.6700, sector: "Sektor Tenggara", fls: [{level: 400, label: 'FL240'}] },
-        { name: "GUMKA", lat: -9.3667, lon: 115.3667, sector: "Sektor Selatan / Tenggara", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] }
+        { name: "BEPTA", lat: -8.01278, lon: 114.7117, sector: "Sektor Barat Laut", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
+        { name: "ESKOG", lat: -8.41694, lon: 114.7028, sector: "Sektor Barat", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
+        { name: "GODEV", lat: -8.915, lon: 114.4214, sector: "Sektor Barat (Pendekatan Utama)", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
+        { name: "GOSAN", lat: -9.05333, lon: 114.9836, sector: "Sektor Barat Daya (Aktif RWY 27)", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
+        { name: "IDGON", lat: -9.26556, lon: 115.1614, sector: "Sektor Barat Daya Luar", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
+        { name: "VIDIL", lat: -7.50944, lon: 115.1217, sector: "Sektor Timur Laut", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
+        { name: "MAGUR", lat: -8.28028, lon: 115.1667, sector: "Sektor Timur", fls: [{level: 700, label: 'FL100'}, {level: 500, label: 'FL180'}] },
+        { name: "BENOA", lat: -8.73917, lon: 115.3983, sector: "Sektor Timur (Khusus RWY 27)", fls: [{level: 850, label: 'FL050'}] },
+        { name: "KHUTA", lat: -8.75467, lon: 114.9109, sector: "Sektor Timur (Khusus RWY 09)", fls: [{level: 850, label: 'FL050'}] },
+        { name: "SARAV", lat: -9.05694, lon: 115.8097, sector: "Sektor Tenggara (Khusus RWY 27)", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
+        { name: "MAVDU", lat: -9.05511, lon: 115.3406, sector: "Sektor Tenggara (Khusus RWY 09)", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
+        { name: "LELES", lat: -9.31528, lon: 115.6603, sector: "Sektor Tenggara", fls: [{level: 400, label: 'FL240'}] },
+        { name: "GUMKA", lat: -9.735, lon: 115.16, sector: "Sektor Selatan / Tenggara", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] }
     ];
 
+    // INISIALISASI PETA
     const map = L.map('map').setView([-8.7, 115.2], 8);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
 
@@ -129,6 +136,7 @@
     let currentWaypoint = null;
     let meteogramChart, airgramChart;
 
+    // FUNGSI BANTUAN
     function getRiskLevel(wCode) {
         if (wCode >= 95 || wCode === 82) return 'bg-red'; 
         if ((wCode >= 63 && wCode <= 65) || (wCode >= 80 && wCode <= 81)) return 'bg-orange'; 
@@ -162,14 +170,15 @@
         return `https://openweathermap.org/img/wn/${icon}${suffix}.png`;
     }
 
+    // MEMBUAT MARKER & POPUP
     waypoints.forEach(wp => {
         const marker = L.marker([wp.lat, wp.lon]).addTo(map);
         
-        // BIND POPUP SEKALI SAJA DI SINI AGAR TIDAK ERROR SAAT DI-KLIK ULANG
+        // BIND POPUP SEKALI SAJA UNTUK MENGHINDARI BUG KLIK
         marker.bindPopup(`<div style="text-align:center; padding: 20px;">Memuat informasi...</div>`);
         
         marker.on('click', async () => {
-            // Ubah konten saat marker diklik menjadi loading
+            // Ubah konten menjadi loading
             marker.setPopupContent(`<div style="text-align:center; padding: 20px;">Mengambil data cuaca...</div>`);
             
             try {
@@ -190,11 +199,12 @@
                     }
                 }
 
-                // SAFETY CHECK MENGHINDARI ERROR BILA DATA NULL
+                // DATA UTAMA
                 const currentWCode = data.hourly.weathercode[startIndex] ?? 0;
                 const weatherText = getWeatherDescEN(currentWCode);
                 const currentIconUrl = getWeatherIconUrl(currentWCode, data.hourly.time[startIndex]);
                 
+                // MENGOLAH FLIGHT LEVEL (DENGAN NULL CHECK)
                 let flHtml = '';
                 wp.fls.forEach(fl => {
                     const speedArray = data.hourly[`wind_speed_${fl.level}hPa`];
@@ -225,6 +235,7 @@
                     </div>
                 `;
 
+                // BLOK RISIKO CUACA
                 let blocksHtml = ''; let labelsHtml = '';
                 for (let i = 0; i < 12; i++) {
                     const dataIndex = startIndex + i;
@@ -266,19 +277,20 @@
                     </div>
                 `;
 
-                // Set konten final popup
+                // TIMPA KONTEN POPUP DENGAN DATA
                 marker.setPopupContent(popupHtml);
                 
-                // Load grafik secara otomatis
+                // LOAD GRAFIK SECARA OTOMATIS
                 loadCharts();
 
             } catch (err) {
                 console.error("Error memuat popup:", err);
-                marker.setPopupContent(`<div style="color:#d9534f; padding: 10px; font-size:12px;">Data server sementara tidak tersedia untuk koordinat ini.<br><br>Detail: ${err.message}</div>`);
+                marker.setPopupContent(`<div style="color:#d9534f; padding: 10px; font-size:12px;">Data satelit tidak tersedia untuk koordinat ini.<br><br>Detail: ${err.message}</div>`);
             }
         });
     });
 
+    // FUNGSI RENDER CHART HIGHCHARTS
     window.loadCharts = function() {
         if (!currentWeatherData || !currentWaypoint) return;
         document.getElementById('locationName').innerText = `${currentWaypoint.name} (${currentWaypoint.lat.toFixed(4)}, ${currentWaypoint.lon.toFixed(4)})`;
@@ -367,5 +379,3 @@
 
 </body>
 </html>
-
-```
