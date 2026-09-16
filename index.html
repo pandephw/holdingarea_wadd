@@ -29,6 +29,14 @@
         .map-section { width: 100%; position: relative; }
         #map { height: 450px; width: 100%; border-radius: 8px; border: 1px solid #444; z-index: 1; }
         
+        /* Custom Styling Leaflet Layer Control */
+        .leaflet-control-layers { background-color: #2b2b2b !important; color: #eee !important; border: 1px solid #555 !important; border-radius: 6px !important; }
+        .leaflet-control-layers-list label { color: #eee !important; }
+        
+        /* Styling Tooltip (Hover Waypoint) */
+        .waypoint-tooltip { background-color: #222; color: #5bc0de; border: 1px solid #555; border-radius: 4px; font-weight: bold; font-size: 12px; padding: 4px 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .waypoint-tooltip::before { border-top-color: #222 !important; }
+        
         /* Grafik Container */
         .chart-section { width: 100%; background: #2b2b2b; padding: 20px; border-radius: 8px; border: 1px solid #444; box-sizing: border-box; }
         .header-info { margin-bottom: 15px; }
@@ -50,7 +58,7 @@
         /* Popup Peta Leaflet */
         .leaflet-popup-content-wrapper { background-color: #222; color: #eee; border-radius: 8px; padding: 0; }
         .leaflet-popup-tip { background-color: #222; }
-        .leaflet-popup-content { margin: 15px; min-width: 320px; }
+        .leaflet-popup-content { margin: 15px; min-width: 330px; }
         .leaflet-container a.leaflet-popup-close-button { color: #aaa; right: 10px; top: 10px; }
         .leaflet-container a.leaflet-popup-close-button:hover { color: #fff; }
         
@@ -58,11 +66,11 @@
         
         /* Kotak Detail Cuaca (Kuning) */
         .weather-summary-box { background-color: #ffe699; color: #333; padding: 12px; border-radius: 6px; margin-top: 15px; font-size: 12px; display: flex; align-items: center; gap: 12px; }
-        .weather-summary-box .weather-icon-wrapper { text-align: center; min-width: 75px; }
+        .weather-summary-box .weather-icon-wrapper { text-align: center; min-width: 70px; }
         .weather-summary-box .weather-icon-wrapper img { width: 45px; height: 45px; background: #444; border-radius: 50%; padding: 2px; }
         .weather-summary-box .cond { font-weight: bold; font-size: 12px; margin-top: 5px; color: #000; line-height: 1.2; }
         .weather-summary-box .fl-container { flex-grow: 1; border-left: 1px solid #d6b85a; padding-left: 12px; }
-        .weather-summary-box .fl-info { margin-bottom: 5px; font-weight: 600; display: flex; align-items: center; }
+        .weather-summary-box .fl-info { margin-bottom: 5px; font-weight: 500; display: flex; align-items: center; font-size: 11px; }
         .weather-summary-box .fl-info:last-child { margin-bottom: 0; }
 
         /* Blok Warna Risiko */
@@ -78,13 +86,25 @@
         .legend-container { display: flex; gap: 8px; font-size: 10px; color: #aaa; margin-top: 15px; flex-wrap: wrap; padding-bottom: 5px;}
         .legend-item { display: flex; align-items: center; gap: 4px; }
         .legend-color { width: 10px; height: 10px; border-radius: 2px; }
+
+        /* Hubungi Kami Section */
+        .contact-section { background: #212121; padding: 25px; border-radius: 8px; border: 1px solid #444; margin-top: 5px; }
+        .contact-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: bold; color: #fff; letter-spacing: 1px; margin-bottom: 20px; text-transform: uppercase; }
+        .accent-line { width: 30px; height: 3px; background: #5cb85c; border-radius: 2px; }
+        .contact-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .contact-card { display: flex; align-items: center; gap: 15px; background: #1a1a1e; padding: 15px 20px; border-radius: 12px; flex: 1; min-width: 260px; border: 1px solid #333; }
+        .icon-box { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #2a2a2e; }
+        .contact-role { font-weight: bold; font-size: 15px; margin-bottom: 5px; color: #eee; }
+        .contact-detail { color: #aaa; font-size: 13px; }
+        .contact-note { margin-top: 25px; font-size: 13px; color: #5cb85c; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .note-dot { width: 10px; height: 10px; background: #5cb85c; border-radius: 50%; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="bmkg-header">
-        <img src="logo-bmkg.png" onerror="this.src='https://www.bmkg.go.id/asset/img/logo/logo-bmkg.png'" alt="Logo BMKG" class="bmkg-logo">
+        <img src="https://www.bmkg.go.id/asset/img/logo/logo-bmkg.png" alt="Logo BMKG" class="bmkg-logo">
         <div class="bmkg-text-container">
             <div class="bmkg-title-top">Stasiun Meteorologi Kelas I</div>
             <div class="bmkg-title-bottom">I Gusti Ngurah Rai</div>
@@ -108,10 +128,48 @@
         <div id="meteogram" class="chart-container active"></div>
         <div id="airgram" class="chart-container"></div>
     </div>
+
+    <!-- Hubungi Kami Section -->
+    <div class="contact-section">
+        <div class="contact-title"><span class="accent-line"></span> HUBUNGI KAMI</div>
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="icon-box" style="color: #5cb85c;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
+                <div>
+                    <div class="contact-role">Forecaster</div>
+                    <div class="contact-detail">+62-811-3977-230</div>
+                </div>
+            </div>
+            
+            <div class="contact-card">
+                <div class="icon-box" style="color: #4a90e2;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
+                <div>
+                    <div class="contact-role">Technician</div>
+                    <div class="contact-detail">+62-811-3890-200</div>
+                </div>
+            </div>
+            
+            <div class="contact-card">
+                <div class="icon-box" style="color: #a682ff;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </div>
+                <div>
+                    <div class="contact-role">Email</div>
+                    <div class="contact-detail">stamet.ngurahrai@bmkg.go.id</div>
+                </div>
+            </div>
+        </div>
+        <div class="contact-note">
+            <span class="note-dot"></span> Available 24/7 for aviation services
+        </div>
+    </div>
 </div>
 
 <script>
-    // 1. DATA KOORDINAT WAYPOINT TERBARU
     const waypoints = [
         { name: "BEPTA", lat: -8.01278, lon: 114.7117, sector: "Sektor Barat Laut", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] },
         { name: "ESKOG", lat: -8.41694, lon: 114.7028, sector: "Sektor Barat", fls: [{level: 850, label: 'FL050'}, {level: 700, label: 'FL100'}] },
@@ -128,15 +186,43 @@
         { name: "GUMKA", lat: -9.735, lon: 115.16, sector: "Sektor Selatan / Tenggara", fls: [{level: 500, label: 'FL180'}, {level: 400, label: 'FL240'}] }
     ];
 
-    // INISIALISASI PETA
-    const map = L.map('map').setView([-8.7, 115.2], 8);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+    // DEFINISI BASEMAP
+    const osmMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    });
+
+    const darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    });
+
+    const positronMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    });
+
+    const satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
+    });
+
+    // INISIALISASI PETA DENGAN DEFAULT OSM
+    const map = L.map('map', {
+        center: [-8.7, 115.2],
+        zoom: 8,
+        layers: [osmMap] 
+    });
+
+    // MENAMBAHKAN KONTROL PILIHAN PETA 
+    const baseMaps = {
+        "OpenStreetMap (OSM)": osmMap,
+        "Mode Gelap (Dark)": darkMap,
+        "Positron (Light)": positronMap,
+        "Satelit (Esri)": satelliteMap
+    };
+    L.control.layers(baseMaps).addTo(map);
 
     let currentWeatherData = null; 
     let currentWaypoint = null;
     let meteogramChart, airgramChart;
 
-    // FUNGSI BANTUAN
     function getRiskLevel(wCode) {
         if (wCode >= 95 || wCode === 82) return 'bg-red'; 
         if ((wCode >= 63 && wCode <= 65) || (wCode >= 80 && wCode <= 81)) return 'bg-orange'; 
@@ -147,15 +233,8 @@
     function getCompassDirection(degree) {
         if (degree === undefined || degree === null) return '-';
         const val = Math.floor((degree / 22.5) + 0.5);
-        const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+        const arr = ["North", "North-Northeast", "Northeast", "East-Northeast", "East", "East-Southeast", "Southeast", "South-Southeast", "South", "South-Southwest", "Southwest", "West-Southwest", "West", "West-Northwest", "Northwest", "North-Northwest"];
         return arr[(val % 16)];
-    }
-
-    function getWindArrowSvg(degree) {
-        return `<svg style="transform: rotate(${degree}deg); width: 14px; height: 14px; margin: 0 6px;" viewBox="0 0 24 24" fill="none" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="2" x2="12" y2="22"></line>
-                  <polyline points="19 9 12 2 5 9"></polyline>
-                </svg>`;
     }
 
     function getWeatherDescEN(code) {
@@ -170,15 +249,27 @@
         return `https://openweathermap.org/img/wn/${icon}${suffix}.png`;
     }
 
-    // MEMBUAT MARKER & POPUP
     waypoints.forEach(wp => {
-        const marker = L.marker([wp.lat, wp.lon]).addTo(map);
+        // PERUBAHAN: MENGGUNAKAN CIRCLE MARKER DENGAN WARNA KONTRAS
+        const marker = L.circleMarker([wp.lat, wp.lon], {
+            radius: 8,
+            fillColor: "#ff9800", // Warna oranye mencolok
+            color: "#ffffff",     // Garis tepi putih
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+        }).addTo(map);
         
-        // BIND POPUP SEKALI SAJA UNTUK MENGHINDARI BUG KLIK
+        // PERUBAHAN: MENAMBAHKAN HOVER TOOLTIP NAMA WAYPOINT
+        marker.bindTooltip(wp.name, {
+            direction: 'top',
+            className: 'waypoint-tooltip',
+            offset: [0, -10]
+        });
+
         marker.bindPopup(`<div style="text-align:center; padding: 20px;">Memuat informasi...</div>`);
         
         marker.on('click', async () => {
-            // Ubah konten menjadi loading
             marker.setPopupContent(`<div style="text-align:center; padding: 20px;">Mengambil data cuaca...</div>`);
             
             try {
@@ -199,12 +290,10 @@
                     }
                 }
 
-                // DATA UTAMA
                 const currentWCode = data.hourly.weathercode[startIndex] ?? 0;
                 const weatherText = getWeatherDescEN(currentWCode);
                 const currentIconUrl = getWeatherIconUrl(currentWCode, data.hourly.time[startIndex]);
                 
-                // MENGOLAH FLIGHT LEVEL (DENGAN NULL CHECK)
                 let flHtml = '';
                 wp.fls.forEach(fl => {
                     const speedArray = data.hourly[`wind_speed_${fl.level}hPa`];
@@ -214,12 +303,11 @@
                     const dirDegree = (dirArray && dirArray[startIndex] != null) ? dirArray[startIndex] : null;
                     
                     const dirText = getCompassDirection(dirDegree);
-                    const arrowSvg = dirDegree !== null ? getWindArrowSvg(dirDegree) : '';
                     
                     flHtml += `
                         <div class="fl-info">
-                            <span style="width: 48px; display:inline-block; color:#0056b3;">${fl.label}</span> 
-                            ${arrowSvg} ${speedVal} Kts (${dirText})
+                            <strong style="width: 48px; display:inline-block; color:#0056b3;">${fl.label}</strong> 
+                            From ${dirText} at ${speedVal} KT
                         </div>`;
                 });
 
@@ -235,7 +323,6 @@
                     </div>
                 `;
 
-                // BLOK RISIKO CUACA
                 let blocksHtml = ''; let labelsHtml = '';
                 for (let i = 0; i < 12; i++) {
                     const dataIndex = startIndex + i;
@@ -277,10 +364,7 @@
                     </div>
                 `;
 
-                // TIMPA KONTEN POPUP DENGAN DATA
                 marker.setPopupContent(popupHtml);
-                
-                // LOAD GRAFIK SECARA OTOMATIS
                 loadCharts();
 
             } catch (err) {
@@ -290,7 +374,6 @@
         });
     });
 
-    // FUNGSI RENDER CHART HIGHCHARTS
     window.loadCharts = function() {
         if (!currentWeatherData || !currentWaypoint) return;
         document.getElementById('locationName').innerText = `${currentWaypoint.name} (${currentWaypoint.lat.toFixed(4)}, ${currentWaypoint.lon.toFixed(4)})`;
